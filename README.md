@@ -4,15 +4,14 @@ See all activity on specific repositories in one place. Track commits, pull requ
 
 ## How to Run
 
-git clone https://github.com/yourusername/yourrepo.git  
+git clone https://github.com/ScottyP1/ORIGIN.git
 cd origin
 
 # Backend setup
 
 cd server  
 python -m venv .venv  
-source .venv/bin/activate # Mac/Linux  
-.venv\Scripts\activate # Windows  
+source .venv/bin/activate
 pip install -r requirements.txt  
 python manage.py migrate  
 python manage.py runserver
@@ -48,8 +47,7 @@ VITE_GITHUB_CLIENT_ID=your_client_id
 Open two terminals:  
 Terminal 1:  
 cd server  
-source .venv/bin/activate # Mac/Linux  
-.venv\Scripts\activate # Windows  
+source .venv/bin/activate
 python manage.py runserver
 
 Terminal 2:  
