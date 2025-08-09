@@ -55,3 +55,9 @@ cd client
 npm run dev
 
 Open http://localhost:5173 in your browser.
+
+# Reference to GitHub API docs
+
+GitHub REST API Reference - https://docs.github.com/en/rest
+
+GitHub OAuth documentation - https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps
