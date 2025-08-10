@@ -102,6 +102,6 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
-    "AUTH_HEADER_TYPES": ("Bearer",),  # <-- make sure it's Bearer
+    "AUTH_HEADER_TYPES": ("Bearer",), 
 }
 

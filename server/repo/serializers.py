@@ -12,7 +12,7 @@ class RepoSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'name',
-            'url',
+            'html_url',
             'open_pr_count',
             'open_issue_count',
             'commit_count',

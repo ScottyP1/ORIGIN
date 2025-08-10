@@ -23,7 +23,7 @@ class RepoActivitySerializer(serializers.ModelSerializer):
         return obj.repo.name if obj.repo else ""
 
     def get_repo_url(self, obj):
-        return obj.repo.url
+        return obj.repo.html_url
     
     
     def get_time_ago(self, obj):

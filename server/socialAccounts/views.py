@@ -51,17 +51,18 @@ class GitHubConnectView(APIView):
 
         #Update user profile fields
         user = request.user
-
+        print(gh_data)
+        
         gh_login = gh_data.get("login")
         if gh_login:
             user.username = gh_login
-        user.github_url = gh_data.get("url", "")
+        user.github_url = gh_data.get("html_url", "")
         user.avatar_url = gh_data.get("avatar_url",user.avatar_url )
         user.full_name = gh_data.get("name", user.full_name)
         user.followers = gh_data.get("followers", 0) or 0
         user.following = gh_data.get("following", 0) or 0
         user.total_repos = gh_data.get("public_repos") or 0
-        user.save(update_fields=["username", "avatar_url", "full_name", "followers", "following", "total_repos"])
+        user.save()
 
         return Response(UserSerializer(user).data, status=s.HTTP_200_OK)
 

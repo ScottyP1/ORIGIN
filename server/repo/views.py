@@ -7,6 +7,7 @@ from .serializers import RepoSerializer
 import requests
 from notifications.models import Notifications
 from socialAccounts.models import SocialAccount
+from django.shortcuts import get_object_or_404
 
 class getTrackedRepos(APIView):
     permission_classes = [IsAuthenticated]
@@ -17,6 +18,12 @@ class getTrackedRepos(APIView):
         
         return Response(RepoSerializer(repos, many=True).data, status=s.HTTP_200_OK)
 
+    def delete(self, request, id):
+        repo = get_object_or_404(Repo, id=id, client=request.user)
+        repo.delete()
+        return Response(status=s.HTTP_204_NO_CONTENT)
+        
+        
 
 class getAllRepos(APIView):
     permission_classes = [IsAuthenticated]
@@ -87,12 +94,9 @@ class AddRepoToUser(APIView):
         repo.open_pr_count = pr_count
         repo.open_issue_count = issue_count
         repo.commit_count = commit_count
-        repo.url = repo_data.get("url", "")
+        repo.html_url = repo_data.get("url", "")
         
         repo.save()
-        notifications, created = Notifications.objects.get_or_create(repo=repo)
-        print(f"Notifications for repo {repo}: {notifications}")
-
-        print(f"Notifications for repo {repo.name}: {notifications}")
+        # notifications, created = Notifications.objects.get_or_create(repo=repo)
 
         return Response(RepoSerializer(repo).data, status=s.HTTP_200_OK)

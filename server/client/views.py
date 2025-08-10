@@ -6,6 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from rest_framework.permissions import IsAuthenticated
 from .serializers import UserSerializer, RegisterSerializer
+from django.core.validators import EmailValidator
+from django.core.exceptions import ValidationError
 
 User = get_user_model()
 
@@ -16,6 +18,22 @@ class UserDetailView(APIView):
         serializer = UserSerializer(request.user)
         return Response(serializer.data, status=s.HTTP_200_OK)
 
+    def put(self, request):
+        client = request.user
+        email = request.data.get('email', '').lower()
+        try:
+            EmailValidator()(email)
+        except ValidationError:
+            return Response({"error": "Invalid email address"}, status=s.HTTP_400_BAD_REQUEST)
+        
+        client.email = email
+        client.save()
+        return Response(status=s.HTTP_200_OK)
+        
+        
+    def delete(self, request):
+        request.user.delete()
+        return Response(status=s.HTTP_204_NO_CONTENT)
 
 class Register(APIView):
 

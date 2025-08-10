@@ -29,7 +29,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "id","username","email",'github_url',
+            "username","email",'github_url',
             "avatar_url","full_name","followers","following",
             "tracked_repos","total_open_prs","total_open_issues","total_commits",
             "activity","total_repos","github_connected"
