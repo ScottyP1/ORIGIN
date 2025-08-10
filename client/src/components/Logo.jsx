@@ -4,7 +4,7 @@ const Logo = () => {
   return (
     <Link
       to="/"
-      className="text-white text-3xl md:text-6xl tracking-[25px] ps-12"
+      className="text-white text-3xl md:text-6xl 2xl:text-7xl tracking-[25px] md:-ml-12 2xl:-ml-42"
     >
       ORIGIN
     </Link>

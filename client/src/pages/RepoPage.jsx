@@ -5,7 +5,7 @@ import AddRepoButton from "../components/AddRepoButton";
 import RepoCard from "../components/RepoCard";
 
 export default function RepoPage() {
-  const { user, loading } = useContext(AuthContext);
+  const { user, setUser, loading, setAllRepos } = useContext(AuthContext);
 
   if (loading) return <h1>Loading</h1>;
 
@@ -23,7 +23,12 @@ export default function RepoPage() {
       >
         {user &&
           user.tracked_repos.map((repo) => (
-            <RepoCard key={repo.id} repo={repo} />
+            <RepoCard
+              key={repo.id}
+              repo={repo}
+              setUser={setUser}
+              setAllRepos={setAllRepos}
+            />
           ))}
       </div>
       {user.tracked_repos.length < 1 && (

@@ -18,9 +18,8 @@ export default function GitHubCallback() {
     async function fetchTokens() {
       try {
         const res = await api.post("social/github/connect/", { code });
-        console.log(res.data);
         setUser(res.data);
-
+        await api.get("repos/all/");
         navigate("/dashboard");
       } catch (err) {
         console.error("GitHub OAuth error:", err);

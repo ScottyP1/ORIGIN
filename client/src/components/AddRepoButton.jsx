@@ -15,6 +15,8 @@ const AddRepoButton = () => {
     setLoadingId(repo.id);
     try {
       const response = await api.post("repos/add/", repo);
+      await api.get("activity/sync/");
+
       setUser((prevUser) => ({
         ...prevUser,
         tracked_repos: [...prevUser.tracked_repos, response.data],
@@ -72,7 +74,7 @@ const AddRepoButton = () => {
                   </div>
                 ))
               ) : (
-                <p className="text-gray-400">No repos found</p>
+                <p className="text-gray-400 ">No repos found</p>
               )}
             </div>
           </div>

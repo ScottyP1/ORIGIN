@@ -82,7 +82,7 @@ const UserSettingsMenu = ({ user, logout }) => {
           {/* Items */}
           <div className="py-2">
             <MenuItem
-              to="/settings"
+              to="/account"
               icon={<FiSettings />}
               label="Account settings"
               description="Profile, email & password"

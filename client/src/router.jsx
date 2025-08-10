@@ -8,6 +8,7 @@ import DashBoardPage from "./pages/DashboardPage";
 import GitHubCallback from "./pages/GitHubCallback";
 import RepoPage from "./pages/RepoPage";
 import AlertsPage from "./pages/AlertsPage";
+import AccountPage from "./pages/AccountPage";
 
 import { IndexLoader } from "./loaders/IndexLoader";
 import { AuthLoader } from "./loaders/AuthLoader";
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
         path: "dashboard",
         element: <DashBoardPage />,
         loader: DashBoardLoader,
+      },
+      {
+        path: "account",
+        element: <AccountPage />,
       },
       {
         path: "repos",

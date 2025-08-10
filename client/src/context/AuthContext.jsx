@@ -1,6 +1,5 @@
 import { createContext, useState, useEffect } from "react";
 import api from "../api/axios";
-
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -44,7 +43,7 @@ export const AuthProvider = ({ children }) => {
         const connected = data.github_connected;
 
         if (connected) {
-          await api.get("activity/sync/");
+          // await api.get("activity/sync/");
           const { data: repos } = await api.get("repos/all/");
           if (cancelled) return;
           setAllRepos(repos);
