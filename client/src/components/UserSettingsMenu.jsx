@@ -38,7 +38,7 @@ const UserSettingsMenu = ({ user, logout }) => {
   }, [open]);
 
   return (
-    <div className="relative cursor-target ">
+    <div className="cursor-target absolute top-15 right-0 ">
       {/* Trigger */}
       <button
         ref={btnRef}

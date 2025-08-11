@@ -27,6 +27,7 @@ const router = createBrowserRouter([
       {
         path: "account",
         element: <AccountPage />,
+        loader: AuthLoader,
       },
       {
         path: "repos",

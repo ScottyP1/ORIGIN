@@ -11,7 +11,9 @@ export async function DashBoardLoader() {
   try {
     const user = await api.get("auth/user/");
     if (user.data.github_connected) {
+      await api.get("activity/sync/");
       const response = await api.get("activity/recent/");
+
       return response.data;
     }
     return null;

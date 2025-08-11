@@ -43,7 +43,6 @@ export const AuthProvider = ({ children }) => {
         const connected = data.github_connected;
 
         if (connected) {
-          // await api.get("activity/sync/");
           const { data: repos } = await api.get("repos/all/");
           if (cancelled) return;
           setAllRepos(repos);

@@ -10,7 +10,7 @@ export default function RepoPage() {
   if (loading) return <h1>Loading</h1>;
 
   return (
-    <div className="px-8 md:px-24 opacity-0 animate-fade-in transition-opacity duration-500 ease-in">
+    <div className="px-8 md:px-24 py-24 opacity-0 animate-fade-in transition-opacity duration-500 ease-in">
       <div className="flex mb-6 absolute top-50 -right-25">
         <AddRepoButton />
       </div>
@@ -18,7 +18,7 @@ export default function RepoPage() {
       <div
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 overflow-y-auto pr-2"
         style={{
-          maxHeight: "calc(100vh - 180px)",
+          maxHeight: "calc(100vh - 220px)",
         }}
       >
         {user &&
@@ -32,7 +32,7 @@ export default function RepoPage() {
           ))}
       </div>
       {user.tracked_repos.length < 1 && (
-        <h1 className="text-white text-center font-[Mokoto] text-4xl">
+        <h1 className="text-white text-center font-[Mokoto] text-4xl -mt-4">
           No Repos Tracked
         </h1>
       )}

@@ -1,59 +1,85 @@
 import { useState, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { FiGithub } from "react-icons/fi";
-import InputField from "../components/InputField";
-import SubmitButton from "../components/SubmitButton";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 
+import Step1Email from "../components/register/Step1";
+import Step2Code from "../components/register/Step2";
+import Step3Password from "../components/register/Step3";
+
 export default function RegisterPage() {
   const { setAccessToken, setUser } = useContext(AuthContext);
+  const [step, setStep] = useState(1);
   const [data, setData] = useState({
     email: "",
+    code: "",
     password: "",
     confirmPassword: "",
   });
+
   const [error, setError] = useState(null);
-  const [passwordError, setPasswordError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setError(null);
-    setPasswordError("");
     const { name, value } = e.target;
     setData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { confirmPassword, ...payload } = data;
-
-    if (!payload.email || !payload.password) {
-      setError({ detail: "Email and password are required." });
+  const sendCode = async () => {
+    if (!data.email) {
+      setError({ detail: "Email is required." });
       return;
     }
-    if (payload.password !== confirmPassword) {
-      setPasswordError("Passwords do not match");
-      return;
-    }
-
     try {
       setSubmitting(true);
-      const { data: res } = await api.post("auth/signup/", payload); // or auth/register/ if that's your route
+      await api.post("auth/send-code/", { email: data.email });
+      setStep(2);
+    } catch (err) {
+      setError(err.response?.data || { detail: "Failed to send code." });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-      // backend returns { user, access, refresh }
+  const verifyCode = async () => {
+    if (!data.code) {
+      setError({ detail: "Verification code is required." });
+      return;
+    }
+    try {
+      setSubmitting(true);
+      await api.post("auth/verify-code/", {
+        email: data.email,
+        code: data.code,
+      });
+      setStep(3);
+    } catch (err) {
+      setError(err.response?.data || { detail: "Invalid verification code." });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const registerUser = async () => {
+    if (!data.password || data.password !== data.confirmPassword) {
+      setError({ detail: "Passwords do not match" });
+      return;
+    }
+    try {
+      setSubmitting(true);
+      const { data: res } = await api.post("auth/signup/", {
+        email: data.email,
+        password: data.password,
+      });
       localStorage.setItem("access", res.access);
       localStorage.setItem("refresh", res.refresh);
       setAccessToken(res.access);
       setUser(res.user);
-
-      setData({ email: "", password: "", confirmPassword: "" });
       navigate("/dashboard");
     } catch (err) {
-      const apiErr = err.response?.data || { detail: "Registration failed." };
-      setError(apiErr);
-      console.error("Register failed:", apiErr);
+      setError(err.response?.data || { detail: "Registration failed." });
     } finally {
       setSubmitting(false);
     }
@@ -63,70 +89,41 @@ export default function RegisterPage() {
     <div className="flex flex-col justify-center items-center min-h-screen px-4 text-white -mt-32 animate-fade-in">
       <h1 className="text-4xl mb-4 font-[Mokoto]">Register</h1>
 
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-6 p-8 w-full max-w-md rounded-3xl bg-gradient-to-br from-[#511f87]/40 via-[#302b63]/40 to-[#0b0b65]/40 backdrop-blur-md shadow-xl"
-      >
-        <InputField
-          label="Email"
-          placeholder="you@example.com"
-          type="email"
-          name="email"
-          value={data.email}
+      {step === 1 && (
+        <Step1Email
+          email={data.email}
           onChange={handleChange}
+          onNext={sendCode}
+          submitting={submitting}
+          error={error}
         />
-        {error?.email && (
-          <span className="text-red-500 text-sm">{error.email[0]}</span>
-        )}
-
-        <InputField
-          label="Password"
-          placeholder="*********"
-          type="password"
-          name="password"
-          value={data.password}
+      )}
+      {step === 2 && (
+        <Step2Code
+          email={data.email}
+          code={data.code}
           onChange={handleChange}
+          onNext={verifyCode}
+          submitting={submitting}
+          error={error}
         />
-        {error?.password && (
-          <span className="text-red-500 text-sm">{error.password[0]}</span>
-        )}
-
-        <InputField
-          label="Confirm Password"
-          placeholder="*********"
-          type="password"
-          name="confirmPassword"
-          value={data.confirmPassword}
+      )}
+      {step === 3 && (
+        <Step3Password
+          password={data.password}
+          confirmPassword={data.confirmPassword}
           onChange={handleChange}
+          onNext={registerUser}
+          submitting={submitting}
+          error={error}
         />
-        {passwordError && (
-          <span className="text-red-500 text-sm">{passwordError}</span>
-        )}
+      )}
 
-        {/* General / non-field errors */}
-        {error?.non_field_errors && (
-          <span className="text-red-500 text-sm">
-            {error.non_field_errors[0]}
-          </span>
-        )}
-        {error?.detail && (
-          <span className="text-red-500 text-sm text-center">
-            {error.detail}
-          </span>
-        )}
-
-        <SubmitButton
-          label={submitting ? "Signing up..." : "Sign up"}
-          onClick={handleSubmit}
-          disabled={submitting}
-        />
-
-        <div className="text-sm text-center text-white/70 hover:text-white transition">
-          <Link to="/login" className="underline">
-            Already have an account? Login
-          </Link>
-        </div>
-      </form>
+      <div className="text-sm text-center text-white/70 hover:text-white transition mt-4">
+        <Link to="/login" className="underline">
+          Already have an account? Login
+        </Link>
+      </div>
     </div>
   );
 }
