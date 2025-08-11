@@ -41,8 +41,34 @@ class UserDetailView(APIView):
 
     def delete(self, request):
         request.user.delete()
+        
         return Response(status=s.HTTP_204_NO_CONTENT)
     
+class RemoveSocial(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        user.social_accounts.all().delete()
+
+        user.tracked_repos.all().delete()
+
+        user.github_connected = False
+        user.username = ""
+        user.github_url = ""
+        user.avatar_url = None
+        user.full_name = ""
+        user.followers = 0
+        user.following = 0
+        user.total_commits = 0
+        user.total_open_prs = 0
+        user.total_open_issues = 0
+        user.total_repos = 0
+        user.save()
+
+        return Response(UserSerializer(user).data, status=s.HTTP_200_OK)
+
+
 class RegisterSendCode(APIView):
     def post(self, request):
         email = request.data.get("email", "").lower()
