@@ -38,13 +38,13 @@ const UserSettingsMenu = ({ user, logout }) => {
   }, [open]);
 
   return (
-    <div className="cursor-target absolute top-15 right-0 ">
+    <div className="cursor-target absolute top-2 right-2 md:top-15 md:right-0 ">
       {/* Trigger */}
       <button
         ref={btnRef}
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-3 text-white bg-gradient-to-br from-[#511f87] via-[#302b63] to-[#0b0b65] py-2.5 px-4 md:px-6 rounded-full hover:from-[#602194] hover:via-[#473f87] hover:to-[#0e0e6e] transition-all duration-200 shadow-lg"
+        className="flex items-center gap-3 text-white md:bg-gradient-to-br from-[#511f87] via-[#302b63] to-[#0b0b65] py-2.5 px-4 md:px-6 rounded-full hover:from-[#602194] hover:via-[#473f87] hover:to-[#0e0e6e] transition-all duration-200 shadow-lg"
         aria-haspopup="menu"
         aria-expanded={open}
       >

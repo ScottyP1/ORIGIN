@@ -45,7 +45,7 @@ export default function AccountPage() {
   };
 
   return (
-    <div className="text-white font-[Mokoto] bg-black/60 backdrop-blur-md border border-white/20 p-6 md:p-8 rounded-2xl w-full md:w-2/3 lg:w-1/2 mx-auto opacity-0 animate-fade-in">
+    <div className="text-white font-[Mokoto] bg-black/60 backdrop-blur-md md:border md:border-white/20 p-6 md:p-8 rounded-2xl w-full md:w-2/3 lg:w-1/2 mx-auto opacity-0 animate-fade-in">
       {/* Email row */}
       <AccountItem
         label="Email"
