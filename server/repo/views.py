@@ -8,6 +8,7 @@ import requests
 from notifications.models import Notifications
 from socialAccounts.models import SocialAccount
 from django.shortcuts import get_object_or_404
+import time
 
 class getTrackedRepos(APIView):
     permission_classes = [IsAuthenticated]
@@ -56,47 +57,60 @@ class AddRepoToUser(APIView):
 
     def post(self, request):
         user = request.user
-        repo_data = request.data
-        
+        repo_id = request.data.get("id")
+        repo_name = request.data.get("name")
+        if not repo_id or not repo_name:
+            return Response({"error": "Missing repo id or name"}, status=400)
+
         account = SocialAccount.objects.filter(user=user, provider="github").first()
         if not account:
             return Response({"error": "No GitHub account connected"}, status=400)
 
-        access_token = account.access_token
-        
-        repo_name = repo_data["name"]
-        
-        headers = {"Authorization": f"Bearer {access_token}"}
+        headers = {
+            "Authorization": f"Bearer {account.access_token}",
+            "Accept": "application/vnd.github+json",
+        }
 
-        # Fetch pull request count (open)
-        pr_response = requests.get(
-            f"https://api.github.com/search/issues?q=repo:{user.username}/{repo_name}+type:pr+state:open",
-            headers=headers
-        )
-        pr_count = pr_response.json().get("total_count", 0)
+        # Always resolve canonical owner/name from the id
+        repo_meta = requests.get(f"https://api.github.com/repositories/{repo_id}", headers=headers)
+        if repo_meta.status_code == 404:
+            return Response({"error": "Repo not found with this id"}, status=404)
+        meta = repo_meta.json()
+        full_name = meta.get("full_name")  # e.g. "org/repo" or "user/repo"
+        html_url = meta.get("html_url", "")
 
-        # Fetch issue count (open, excluding PRs)
-        issue_response = requests.get(
-            f"https://api.github.com/search/issues?q=repo:{user.username}/{repo_name}+type:issue+state:open",
-            headers=headers
-        )
-        issue_count = issue_response.json().get("total_count", 0)
+        # Counts via Search API (use full_name)
+        pr_q = f"is:open is:pr repo:{full_name}"
+        issue_q = f"is:open is:issue repo:{full_name}"
+        pr_count = requests.get(f"https://api.github.com/search/issues?q={pr_q}", headers=headers).json().get("total_count", 0)
+        issue_count = requests.get(f"https://api.github.com/search/issues?q={issue_q}", headers=headers).json().get("total_count", 0)
 
-        # Fetch commit activity stats
-        commit_activity_url = f"https://api.github.com/repos/{user.username}/{repo_name}/stats/commit_activity"
-        commit_response = requests.get(commit_activity_url, headers=headers)
+        # Commit activity (last 52 weeks) with robust polling for 202
+        commit_count = 0
+        stats_url = f"https://api.github.com/repos/{full_name}/stats/commit_activity"
 
-        commit_data = commit_response.json()
-        commit_count = sum(week['total'] for week in commit_data)
+        # Exponential backoff up to ~30s total
+        delay = 1.0
+        for _ in range(8):
+            r = requests.get(stats_url, headers=headers)
+            if r.status_code == 202:
+                time.sleep(delay)
+                delay = min(delay * 1.8, 6.0)
+                continue
+            if r.status_code == 200 and isinstance(r.json(), list):
+                commit_count = sum(week.get("total", 0) for week in r.json())
+            else:
+                # If 404 on private repos, token may lack "repo" scope
+                # fall through with 0 rather than crash
+                pass
+            break
 
-        repo, created = Repo.objects.get_or_create(client=user, github_id=repo_data.get("id"))
-        repo.name = repo_data.get("name", "")
+        repo, _ = Repo.objects.get_or_create(client=user, github_id=repo_id)
+        repo.name = repo_name
+        repo.html_url = html_url
         repo.open_pr_count = pr_count
         repo.open_issue_count = issue_count
         repo.commit_count = commit_count
-        repo.html_url = repo_data.get("url", "")
-        
         repo.save()
-        # notifications, created = Notifications.objects.get_or_create(repo=repo)
 
         return Response(RepoSerializer(repo).data, status=s.HTTP_200_OK)

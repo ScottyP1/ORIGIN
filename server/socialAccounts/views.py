@@ -51,7 +51,6 @@ class GitHubConnectView(APIView):
 
         #Update user profile fields
         user = request.user
-        print(gh_data)
         
         gh_login = gh_data.get("login")
         if gh_login:
