@@ -38,6 +38,12 @@ export default function AccountPage() {
     }
   };
 
+  const handleRemoveGithub = async () => {
+    await api.delete("auth/unlink/");
+    const response = await api.get("auth/user/");
+    setUser(response.data);
+  };
+
   return (
     <div className="text-white font-[Mokoto] bg-black/60 backdrop-blur-md border border-white/20 p-6 md:p-8 rounded-2xl w-full md:w-2/3 lg:w-1/2 mx-auto opacity-0 animate-fade-in">
       {/* Email row */}
@@ -82,9 +88,14 @@ export default function AccountPage() {
           >
             Delete Account
           </button>
-          <button className="cursor-target border border-red-500 px-4 py-3 rounded-xl w-full hover:bg-red-600 disabled:opacity-50">
-            Remove GitHub
-          </button>
+          {user.github_connected && (
+            <button
+              onClick={handleRemoveGithub}
+              className="cursor-target border border-red-500 px-4 py-3 rounded-xl w-full hover:bg-red-600 disabled:opacity-50"
+            >
+              Remove GitHub
+            </button>
+          )}
         </div>
       ) : (
         <div className="mt-10">

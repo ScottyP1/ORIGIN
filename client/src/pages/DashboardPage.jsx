@@ -12,7 +12,7 @@ export default function DashBoardPage() {
   const activityData = useLoaderData();
 
   if (loading) return <h1>Loading</h1>;
-
+  console.log(user);
   return (
     <div className="opacity-0 animate-fade-in">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-8 py-6">
