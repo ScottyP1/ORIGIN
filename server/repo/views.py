@@ -49,7 +49,7 @@ class getAllRepos(APIView):
             data.append({
                 "id": repo["id"], "name": repo["name"],
                 "url": repo["html_url"]})
-        return Response(data, status=s.HTTP_200_OK)
+        return Response(RepoSerializer(data, many=True).data, status=s.HTTP_200_OK)
 
 
 class AddRepoToUser(APIView):
@@ -76,7 +76,7 @@ class AddRepoToUser(APIView):
         if repo_meta.status_code == 404:
             return Response({"error": "Repo not found with this id"}, status=404)
         meta = repo_meta.json()
-        full_name = meta.get("full_name")  # e.g. "org/repo" or "user/repo"
+        full_name = meta.get("full_name") 
         html_url = meta.get("html_url", "")
 
         # Counts via Search API (use full_name)
@@ -85,7 +85,7 @@ class AddRepoToUser(APIView):
         pr_count = requests.get(f"https://api.github.com/search/issues?q={pr_q}", headers=headers).json().get("total_count", 0)
         issue_count = requests.get(f"https://api.github.com/search/issues?q={issue_q}", headers=headers).json().get("total_count", 0)
 
-        # Commit activity (last 52 weeks) with robust polling for 202
+        # Commit activity 
         commit_count = 0
         stats_url = f"https://api.github.com/repos/{full_name}/stats/commit_activity"
 
@@ -100,8 +100,6 @@ class AddRepoToUser(APIView):
             if r.status_code == 200 and isinstance(r.json(), list):
                 commit_count = sum(week.get("total", 0) for week in r.json())
             else:
-                # If 404 on private repos, token may lack "repo" scope
-                # fall through with 0 rather than crash
                 pass
             break
 

@@ -9,3 +9,5 @@ class Repo(models.Model):
     open_pr_count = models.IntegerField(default=0)
     open_issue_count = models.IntegerField(default=0)
     commit_count = models.IntegerField(default=0)
+    
+    
